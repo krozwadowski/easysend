@@ -1,0 +1,159 @@
+<html lang="en" >
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <meta charset="utf-8">
+    <title>EasySendApp by Krzysiek Rozwadowski</title>
+</head>
+
+<body >
+<div class="row">
+    <div class="col-md-6 col-md-offset-3">
+<div class="panel panel-primary">
+    <div class="panel-heading">
+       <h3 class="panel-title"> EasySendApp by Krzysiek Rozwadowski</h3>
+    </div>
+    <div class="panel-body">
+
+    <div ng-app="MyApp" class="" ng-controller="EasySendCtrl" layout="column" ng-cloak="">
+        <md-content class="md-padding">
+            <form ng-submit="$event.preventDefault()" name="searchForm">
+                <p>Wyślij Pieniądze za Darmo już Dziś.
+                    Bardzo Wysoki Kurs · Przelew na Koncie w 10min · 1 i 10 Przelew za Darmo</p>
+                    <div layout-gt-lg="row">
+                        <div class="col-md-6">
+
+                            <lg-input-container>
+                                <label>Przelewam pieniądze z</label>
+                                <md-select ng-model="selectedCountriesIn" md-on-close="clearSearchTerm()"
+                                           ng-change="getCountryOut(0)"
+                                           data-md-container-class="selectdemoSelectHeader">
+                                <md-select-header class="demo-select-header">
+
+                                <input ng-model="searchTerm"
+                                   type="search" class="form-control"
+                                   placeholder="Wpisz by wyszukać kraj">
+                                </md-select-header>
+                                <md-optgroup label="countries">
+                                <md-option ng-value="country_in.id" ng-selected="{{country_in.id==selectedCountriesIn}}"
+                                ng-repeat="country_in in countries_in | filter:searchTerm"
+                                >{{country_in.name}}</md-option>
+                        </md-optgroup>
+                    </md-select>
+                </lg-input-container>
+                        </div>
+                        <div class="col-md-6">
+                            <lg-input-container>
+                                <label>do</label>
+                                <md-select ng-model="selectedCountriesOut"
+                                           md-on-close="clearSearchTerm()"
+                                           data-md-container-class="selectdemoSelectHeader"
+                                           ng-change="getCurencyIn(0)"
+                                >
+                                    <md-select-header class="demo-select-header">
+
+                                        <input ng-model="searchTerm"
+                                               type="search" class="form-control"
+                                               placeholder="Wpisz by wyszukać kraj">
+                                    </md-select-header>
+                                    <md-optgroup label="countries">
+                                        <md-option ng-value="country_out.id" ng-selected="{{country_out.id==selectedCountriesOut}}"
+                                                   ng-repeat="country_out in countries_out | filter:searchTerm">{{country_out.name}}</md-option>
+                                    </md-optgroup>
+                                </md-select>
+                            </lg-input-container>
+                        </div>
+                </div>
+                <div layout-gt-lg="row">
+                    <div class="col-md-3">
+                        <md-input-container>
+                            <label>Do wysłania</label>
+                            <input type="text" placeholder="0.00" ng-model="MoneyToSend" valid-number ng-blur="calculate(1)" >
+                            </md-input-container>
+                    </div>
+                    <div class="col-md-3">
+
+                    <md-input-container>
+                            <label>Waluta</label>
+                            <md-select ng-model="selectedCICurrency"
+                                       data-md-container-class="selectdemoSelectHeader"
+                            >
+                                <md-select-header class="demo-select-header">
+
+
+                                </md-select-header>
+                                <md-optgroup >
+                                    <md-option ng-value="cin.currency_in.name" ng-repeat="cin in currencies_in"
+                                               ng-selected="{{cin.currency_in.name==selectedCICurrency}}">
+                                        {{cin.currency_in.name}}</md-option>
+                                </md-optgroup>
+                            </md-select>
+                        </md-input-container>
+                        </div>
+                    <div class="col-md-3">
+                        <md-input-container>
+                            <label>Do otrzymania</label>
+                            <input type="text" ng-model="MoneyToRecive" valid-number ng-blur="calculate(2)">
+                        </md-input-container>
+                    </div>
+                    <div class="col-md-3">
+
+                        <md-input-container>
+                            <label>Waluta</label>
+                            <md-select ng-model="selectedCOCurrency"
+                                       data-md-container-class="selectdemoSelectHeader"
+                                       ng-change="calculate(1)"
+
+                            >
+                                <md-select-header class="demo-select-header">
+
+
+                                </md-select-header>
+                                <md-optgroup>
+                                    <md-option ng-value="cout.currency_out.name" ng-click = "setSFA(cout.super_fast_available)" ng-repeat="cout in currencies_out" ng-selected="{{cout.currency_out.name==selectedCOCurrency}}">
+                                        {{cout.currency_out.name}}</md-option>
+                                </md-optgroup>
+                            </md-select>
+                        </md-input-container>
+                    </div>
+                </div>
+                <div layout-gt-lg="row">
+                    <div class="col-md-offset-4">
+                        <p>1 {{rateCI}} = <span>{{rate}}</span> {{rateCO}}</p>
+                    </div>
+                </div>
+                <div layout-gt-lg="row">
+                    <div class="col-md-6">
+
+                        <lg-input-container>
+                            <md-button class="md-raised" style="width: 99%">Przelew FAST</md-button>
+                        </lg-input-container>
+                    </div>
+                    <div class="col-md-6">
+                        <lg-input-container>
+                            <md-button class="md-raised" ng-disabled="{{sfaState}}" style="width: 99%">Przelew SUPERFAST</md-button>
+                        </lg-input-container>
+                    </div>
+                </div>
+
+            </form>
+    </md-content>
+</div>
+<!-- Angular Material requires Angular.js Libraries -->
+<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-animate.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-aria.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-messages.min.js"></script>
+<script type="application/javascript" src="easy_manager_2.js"></script>
+<script src="http://ngmaterial.assets.s3.amazonaws.com/svg-assets-cache.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui/0.4.0/angular-ui.min.js"></script>
+<!-- Angular Material Library -->
+<script src="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.js"></script>
+<!-- Your application bootstrap  -->
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>
